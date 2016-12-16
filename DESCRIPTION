@@ -1,9 +1,8 @@
 Package: secimler
-Title: Türkiye'deki genel (ve yakında yerel) seçimlerin detaylı verisi ve
-    analizleri.
-Version: 0.0.1
+Title: Türkiye'deki Haziran 2015 ve Kasım 2015 sandık bazında seçim sonuçları veri paketi.
+Version: 1.0.0
 Authors@R: person("Berk", "Orbay", email = "berk.orbay@gmail.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
+Description: Bu paket R ile veri analizine giriş konusunu sandık bazında seçim verileri üzerinde anlatmak üzere tasarlanmış bir dersin veri paketidir. Bu paket dışında tidyverse paketi de doğrudan yüklenmektedir.
 Depends:
     R (>= 3.3.1),
     tidyverse
