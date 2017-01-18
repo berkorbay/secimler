@@ -4,12 +4,14 @@
 \name{secim150607g}
 \alias{secim150607g}
 \title{7 Haziran 2015 Genel Seçimleri Sandık Bazında Seçmen ve Oy Sayıları}
-\format{An object of class \code{tbl_df} (inherits from \code{tbl}, \code{data.frame}) with 176831 rows and 29 columns.}
+\format{An object of class \code{tbl_df} (inherits from \code{tbl}, \code{data.frame}) with 176831 rows and 30 columns.}
 \usage{
 secim150607g
 }
 \arguments{
-\item{il}{İlgili sandığın seçim ili veya bölgesini ifade eder. Sadece Ankara (2), İstanbul (3) ve İzmir (2) bölgelere ayrılmışlardır.}
+\item{il}{İlgili sandığın seçim ilini ifade eder.}
+
+\item{bolge}{Sadece Ankara (2), İstanbul (3) ve İzmir (2) seçim bölgelerine ayrılmışlardır. Diğer bütün iller için bölge numarası 1'dir.}
 
 \item{ilce}{İlgili sandığın ilçesini ifade eder. Satırlarda illerin toplam istatistiklerini belirten değer İli ile ifade edilmiştir, diğer bütün değerler ilçe isimleridir.}
 
@@ -24,6 +26,48 @@ secim150607g
 \item{oy_kullanan}{İlgili sandıkta (eğer `cevre_turu` Toplam ise ilgili bölgede) oy kullanan toplam kişi sayısını verir. Bazı sandıklarda oy kullanan kişi sayısı kayıtlı seçmen sayısından fazla olabilir. Bunun sebepleri arasında görevlilerin (ör. sandık görevlisi, polis memuru) tutanakla kendi kayıtlı sandıklarının yerine başka sandıklarda oy atabilmeleri ve kayıt hataları bulunmaktadır.}
 
 \item{gecerli_oy}{İlgili sandıktaki (eğer `cevre_turu` Toplam ise ilgili bölgede) geçerli oy sayısını verir. Oylar çeşitli sebeplerle geçerli sayılmayabilmektedir. (Ör. Boş oy, çift mühür, oyun nereye basıldığının anlaşılamaması.)}
+
+\item{ak_parti}{Adalet ve Kalkınma Partisi (AK PARTİ) 14 Ağustos 2001 tarihinde kurulmuştur. Merkez sağ partisidir. İdeolojileri sosyal muhafazakarlık, muhafazakar demokrasi, ekonomik liberalizm ve yeni Osmanlıcılıktır. 2002 genel seçimlerinden Kasım 2015 genel seçimlerine kadar en yüksek oyu alıp iktidar partisi olmuşlardır. (Kaynak: Vikipedi)}
+
+\item{chp}{Cumhuriyet Halk Partisi (CHP) 9 Eylül 1923'te Mustafa Kemal Atatürk tarafından kurulmuştur. Merkez sol partisidir. İdeolojileri Atatürkçülük, sosyal demokrasi ve demokratik soldur. 2002 genel seçimlerinden Kasım 2015 genel seçimlerine kadar en yüksek ikinci oyu alıp ana muhalefet partisi olmuşlardır. (Kaynak: Vikipedi)}
+
+\item{mhp}{Milliyetçi Hareket Partisi (MHP) 9 Şubat 1969 tarihinde kurulmuştur. Sağ partidir. İdeolojileri Türk milliyetçiliği, ülkücülük ve dokuz ışıktır. Kasım 2015 genel seçimlerinde en yüksek üçüncü oyu alıp muhalefet olmuşlardır. (Kaynak: Vikipedi)}
+
+\item{hdp}{Halkların Demokratik Partisi (HDP) 27 Ekim 2013 tarihinde kurulmuştur. Sol partidir. İdeolojileri siyasi çoğulculuk, sosyalizm, radikal demokrasi, demokratik sosyalizm, feminizm ve doğrudan demokrasidir. Kasım 2015 genel seçimlerinde en yüksek dördüncü oyu alıp muhalefet olmuşlardır. (Kaynak: Vikipedi)}
+
+\item{dyp}{Doğru Yol Partisi (DYP)}
+
+\item{anadolu_partisi}{Anadolu Partisi}
+
+\item{hak_par}{Hak ve Özgürlükler Partisi (HAK-PAR)}
+
+\item{kp}{Komünist Parti (KP)}
+
+\item{millet_partisi}{Millet Partisi}
+
+\item{hap}{Hak ve Adalet Partisi (HAP)}
+
+\item{mep}{Merkez Parti (MEP)}
+
+\item{turk_parti}{Toplumsal Uzlaşma Reform ve Kalkınma Partisi (TURK Parti)}
+
+\item{hkp}{Halkın Kurtuluş Partisi (HKP)}
+
+\item{ldp}{Liberal Demokrat Parti (LDP)}
+
+\item{saadet_partisi}{Saadet Partisi}
+
+\item{dsp}{Demokratik Sol Parti (DSP)}
+
+\item{yurt_parti}{Yurt Partisi}
+
+\item{dp}{Demokrat Parti (DP)}
+
+\item{vatan_partisi}{Vatan Partisi}
+
+\item{btp}{Bağımsız Türkiye Partisi (BTP)}
+
+\item{bagimsiz}{Bağımsız adaylar.}
 }
 \description{
 Bu veri setinde 7 Haziran 2015 Milletvekili Genel Seçimi'nin sandık bazında seçmen bilgileri ve oy sayıları bulunmaktadır. Veri setinin bazı satırlarında toplam bilgileri verilmiştir. Her sütunun açıklamasında toplam bilgilerinin nasıl ifade edildiği belirtilmektedir.

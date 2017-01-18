@@ -3,7 +3,8 @@
 #'@description
 #'Bu veri setinde 7 Haziran 2015 Milletvekili Genel Seçimi'nin sandık bazında seçmen bilgileri ve oy sayıları bulunmaktadır. Veri setinin bazı satırlarında toplam bilgileri verilmiştir. Her sütunun açıklamasında toplam bilgilerinin nasıl ifade edildiği belirtilmektedir.
 #'
-#'@param il İlgili sandığın seçim ili veya bölgesini ifade eder. Sadece Ankara (2), İstanbul (3) ve İzmir (2) bölgelere ayrılmışlardır.
+#'@param il İlgili sandığın seçim ilini ifade eder.
+#'@param bolge Sadece Ankara (2), İstanbul (3) ve İzmir (2) seçim bölgelerine ayrılmışlardır. Diğer bütün iller için bölge numarası 1'dir.
 #'@param ilce İlgili sandığın ilçesini ifade eder. Satırlarda illerin toplam istatistiklerini belirten değer İli ile ifade edilmiştir, diğer bütün değerler ilçe isimleridir.
 #'@param cevre İlgili sandığın seçim çevresi isimlerini içerir. Bu sütundaki özel değerler Genel, İl-İlçe Genel ve Köy-Belde Genel ifadelerinden oluşmaktadır. Özel değerler sırasıyla ilin toplam sandık ve oy sayılarını, ilçelerinin ve merkezinin toplam sandık ve oy sayılarını ve köylerinin ve beldelerinin toplam sandık ve oy sayılarını belirtir.
 #'@param cevre_turu İlgili sandığın bulunduğu seçim çevresinin türünü içerir. Seçim çevreleri Köy, Belde, Mahalle veya Cezaevi olabilirler. Bu sütundaki Toplam değeri ilgili satırın bir sandık verisi içermediğini, birden çok sandığın toplamının verilerini içerir. Toplamın neleri kapsadığını aynı satırın kendisinden önceki sütunlarında verilen bilgilerde bulabilirsiniz.
@@ -39,7 +40,8 @@
 #'@description
 #'Bu veri setinde 1 Kasım 2015 Milletvekili Genel Seçimi'nin sandık bazında seçmen bilgileri ve oy sayıları bulunmaktadır. Veri setinin bazı satırlarında toplam bilgileri verilmiştir. Her sütunun açıklamasında toplam bilgilerinin nasıl ifade edildiği belirtilmektedir.
 #'
-#'@param il İlgili sandığın seçim ili veya bölgesini ifade eder. Sadece Ankara (2), İstanbul (3) ve İzmir (2) bölgelere ayrılmışlardır.
+#'@param il İlgili sandığın seçim ilini ifade eder.
+#'@param bolge Sadece Ankara (2), İstanbul (3) ve İzmir (2) seçim bölgelerine ayrılmışlardır. Diğer bütün iller için bölge numarası 1'dir.
 #'@param ilce İlgili sandığın ilçesini ifade eder. Satırlarda illerin toplam istatistiklerini belirten değer İli ile ifade edilmiştir, diğer bütün değerler ilçe isimleridir.
 #'@param cevre İlgili sandığın seçim çevresi isimlerini içerir. Bu sütundaki özel değerler Genel, İl-İlçe Genel ve Köy-Belde Genel ifadelerinden oluşmaktadır. Özel değerler sırasıyla ilin toplam sandık ve oy sayılarını, ilçelerinin ve merkezinin toplam sandık ve oy sayılarını ve köylerinin ve beldelerinin toplam sandık ve oy sayılarını belirtir.
 #'@param cevre_turu İlgili sandığın bulunduğu seçim çevresinin türünü içerir. Seçim çevreleri Köy, Belde, Mahalle veya Cezaevi olabilirler. Bu sütundaki Toplam değeri ilgili satırın bir sandık verisi içermediğini, birden çok sandığın toplamının verilerini içerir. Toplamın neleri kapsadığını aynı satırın kendisinden önceki sütunlarında verilen bilgilerde bulabilirsiniz.

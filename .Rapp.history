@@ -1,0 +1,13 @@
+library(secimler)
+secim150607g<-#
+secim150607g %>% mutate(bolge = 1, bolge = ifelse(grepl("1 nolu", ilce),1,bolge), bolge = ifelse(grepl("2 nolu", ilce),2,bolge), bolge = ifelse(grepl("3 nolu", ilce),3,bolge),ilce=gsub("İli.*","İli",ilce)) %>% select(il,bolge,everything()) #%>% filter(grepl("İzmir",il))#
+#
+secim151101g <-#
+secim151101g %>% mutate(bolge = 1, bolge = ifelse(grepl("-1", il),1,bolge), bolge = ifelse(grepl("-2", il),2,bolge), bolge = ifelse(grepl("-3", il),3,bolge),il=gsub("-.*","",il)) %>% select(il,bolge,everything()) #%>% filter(grepl("İzmir",il))
+setwd("/Users/berkorbay/git_repositories/secimler")
+devtools::use_data(secim150607g,pkg=".",overwrite=TRUE)
+secim151101g
+secim150607g
+devtools::use_data(secim151101g,pkg=".",overwrite=TRUE)
+roxygen2::roxygenise()
+devtools::install()
