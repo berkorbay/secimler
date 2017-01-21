@@ -1,4 +1,5 @@
 ##
+#' @export
 bolgeleri_birlestir<-function(bolge_verisi){
 
     bolge_verisi %>%
@@ -7,6 +8,7 @@ bolgeleri_birlestir<-function(bolge_verisi){
 
 }
 
+#' @export
 oranlari_hesapla<-function(istatistik_verisi){
 
     oy_oranlari<-
@@ -31,6 +33,7 @@ oranlari_hesapla<-function(istatistik_verisi){
 
 # secim_data <- secim151101g
 # il_ismi <- "İstanbul"
+#' @export
 il_bazi_giris<-function(secim_data,il_ismi,bolge_text=0){
 
     #Il verisini al
@@ -49,6 +52,16 @@ il_bazi_giris<-function(secim_data,il_ismi,bolge_text=0){
         if(nrow(il_data) == 0){
             stop("Yanlış bölge veya bu ilin bölgesi yok.")
         }
+
+        ilce_text <-
+        il_data %>%
+        filter(ilce != "İli") %>%
+        distinct(ilce) %>%
+        arrange(ilce) %>%
+        unlist()
+
+        ilce_text[length(ilce_text)] <- paste0("ve ",ilce_text[length(ilce_text)])
+        ilce_text <- paste0(ilce_text,collapse=", ")
     }
 
     #Bolge sayisi
@@ -86,7 +99,9 @@ il_bazi_giris<-function(secim_data,il_ismi,bolge_text=0){
 
     #Cumle haline getir.
     output_text<-
-    paste0(il_ismi,ifelse(bolge_text > 0,paste0(" ",bolge_text,". bölgede ")," ilinde bu seçimde "),
+    paste0(
+        ifelse(bolge_text > 0, paste0(il_ismi," ",bolge_text,". bölge ",ilce_text," ilçelerini kapsamaktadır."),""),
+        ifelse(bolge_text > 0,"Bu bölgede ",paste0(il_ismi," ilinde bu seçimde ")),
            ifelse(secim_bolge_sayisi>1,paste0(secim_bolge_sayisi," seçim bölgesi "),""),
            ilce_sayisi," ilçe, ",
            ifelse(cevre_sayilari$Mahalle>0,paste0(cevre_sayilari$Mahalle," mahalle, "),""),
@@ -97,6 +112,7 @@ il_bazi_giris<-function(secim_data,il_ismi,bolge_text=0){
            ifelse(bolge_text > 0, "Seçim bölgesi","İl")," içerisinde toplam ", format(il_istatistikleri$kayitli_secmen,big.mark=".",decimal.mark=",")," kayıtlı seçmen bulunmaktadır. ",
            format(il_istatistikleri$oy_kullanan,big.mark=".",decimal.mark=",")," seçmen oy kullanmış, geçerli oy sayısı ise ",format(il_istatistikleri$gecerli_oy,big.mark=".",decimal.mark=",")," olmuştur. ",
            "Seçime katılım oranı %",format(round(il_istatistikleri$oy_kullanan/il_istatistikleri$kayitli_secmen,4)*100,big.mark=".",decimal.mark=",")," olarak gerçekleşmiştir."
+
     )
 
     #Partilerin oy oranlarını hesapla
@@ -132,6 +148,7 @@ il_bazi_giris<-function(secim_data,il_ismi,bolge_text=0){
     return(output_text)
 }
 
+#' @export
 il_bazi_giris_tepe<-function(...){
 
     args<-list(...)
@@ -159,6 +176,7 @@ il_bazi_giris_tepe<-function(...){
 }
 
 
+#' @export
 il_bazi_oylar_daire_grafigi<-function(secim_list=list(`7 Haziran`=secim150607g,`1 Kasım`=secim151101g),il_ismi){
 
     secim_sayisi<-length(secim_list)
@@ -204,7 +222,7 @@ il_bazi_oylar_daire_grafigi<-function(secim_list=list(`7 Haziran`=secim150607g,`
     ggplot(data=oy_oranlari,aes(x="",y=oy_orani,fill=ordered(parti,levels=c("ak_parti","chp","mhp","hdp","diger")))) +
     geom_bar(stat="identity",width=1) +
     coord_polar("y",start=1/3,direction = -1) +
-    scale_fill_manual(values=c("orange","red","blue","purple","grey"),labels=c("AK Parti","CHP","MHP","HDP","Diğer"),position="bottom") +
+    scale_fill_manual(values=c("#E4670C","#D6001C","#003f91","#7330b4","grey"),labels=c("AK Parti","CHP","MHP","HDP","Diğer"),position="bottom") +
     scale_y_continuous(expand=c(0,0)) +
     scale_x_discrete(expand=c(0,0)) +
     facet_wrap(~donem) +
@@ -238,6 +256,7 @@ il_bazi_oylar_daire_grafigi<-function(secim_list=list(`7 Haziran`=secim150607g,`
 
 }
 
+#' @export
 il_bazi_ilce_katilim_oranlari<-function(secim_list=list(`20150607`=secim150607g,`20151101`=secim151101g),il_ismi){
 
     il_ilceler_verisi <-
@@ -266,7 +285,7 @@ il_bazi_ilce_katilim_oranlari<-function(secim_list=list(`20150607`=secim150607g,
     #         axis.text.x=element_text(angle=45,vjust=1,hjust=1))
 
 # fill="#77dd77"
-
+    grafik_bilgisi<-
     ggplot(data=il_ilceler_verisi, aes(x=ilce)) +
     # geom_bar(aes(y=deger,fill=deger_adi),stat="identity",position="identity") +
     geom_bar(aes(y=kayitli_secmen,fill=secim),stat="identity",position=position_dodge(width=1),alpha=0.6) +
@@ -285,5 +304,97 @@ il_bazi_ilce_katilim_oranlari<-function(secim_list=list(`20150607`=secim150607g,
         # legend.margin=unit(0.05,"cm"),
             plot.title=element_text(hjust=0.5),plot.caption=element_text(hjust=0.5),
             axis.text.x=element_text(angle=45,vjust=1,hjust=1))
+
+    return(grafik_bilgisi)
+}
+
+#' @export
+il_bazi_ilce_parti_oy_oranlari<-function(secim_list=list(`20150607`=secim150607g,`20151101`=secim151101g),il_ismi,parti_ismi,parti_etiketi,renk_semasi){
+
+    il_ilceler_verisi <-
+    plyr::ldply(secim_list,
+        .fun=(. %>%
+            filter(il == il_ismi & ilce!="İli" & cevre=="Genel" & cevre_turu == "Toplam") %>% select_("ilce","gecerli_oy",parti_ismi) %>%
+            # gather(deger_adi,deger,-ilce)
+            tbl_df()
+            ),.id="secim") %>%
+
+            mutate(secim=ordered(secim,levels=names(secim_list))) %>%
+            tbl_df()
+
+    grafik_verisi<-
+    il_ilceler_verisi %>%
+    mutate_(oy_orani=paste(parti_ismi,"/gecerli_oy")) %>%
+    transmute(secim=ordered(secim,levels=names(secim_list)),ilce,oy_orani=round(oy_orani,4)) %>%
+    arrange(ilce) %>%
+    tbl_df()
+
+    # ggplot(data=il_ilceler_verisi, aes(x=ilce)) +
+    # geom_bar(aes(y=deger,fill=deger_adi),stat="identity",position="identity") +
+    # # geom_bar(aes(y=kayitli_secmen),stat="identity",position="stack",fill="#77dd77",data="Kayıtlı Seçmen") +
+    # # geom_bar(aes(y=oy_kullanan),stat="identity",position="stack",fill="red",data="Oy Kullanan") +
+    # # geom_bar(aes(y=gecerli_oy),stat="identity",position="stack",fill="blue",data="Geçerli Oy") +
+    # labs(x="",y="",
+    #     title=paste0(il_ismi," Çevresi İlçelerin Seçime Katılım Oranları"),caption="") +
+    # scale_x_discrete(expand = c(0, 0)) +
+    # scale_y_continuous(labels = scales::percent,expand=c(0,0),limits=c(0,1)) +
+    # theme_bw() +
+    # theme(legend.position="top",legend.key.size=unit(1,"char"),legend.margin=unit(0.05,"cm"),
+    #         plot.title=element_text(hjust=0.5),plot.caption=element_text(hjust=0.5),
+    #         axis.text.x=element_text(angle=45,vjust=1,hjust=1))
+
+# fill="#77dd77"
+    grafik_bilgisi<-
+    ggplot(data=grafik_verisi, aes(x=ilce)) +
+    # geom_bar(aes(y=deger,fill=deger_adi),stat="identity",position="identity") +
+    geom_bar(aes(y=oy_orani,fill=secim),stat="identity",position=position_dodge(width=1),alpha=0.9) +
+    labs(x="",y=paste0(parti_etiketi," Oy Oranı"),
+        title=NULL) +
+    scale_x_discrete(expand = c(0,0.75)) +
+    scale_y_continuous(labels = scales::percent,expand=c(0,0),limits=c(0,1)) +
+    # scale_y_continuous(expand=c(0,0),labels = function(x) round(x/1000),limits=c(0,ceiling(max(il_ilceler_verisi$kayitli_secmen)/10000)*10000)) +
+    scale_fill_manual(name="",values=renk_semasi,labels=c("7 Haziran","1 Kasım")) +
+    # scale_color_manual(name="",values=c("black","grey"),labels=c("Geçerli Oy","Geçersiz Oy")) +
+    theme_bw() +
+    theme(legend.position="top",
+        legend.key.size=unit(1,"char"),
+        # legend.margin=unit(0.05,"cm"),
+            plot.title=element_text(hjust=0.5),plot.caption=element_text(hjust=0.5),
+            axis.text.x=element_text(angle=45,vjust=1,hjust=1))
+
+    return(grafik_bilgisi)
+}
+
+
+
+#' @export
+oy_orani_histogram_il<-function(secim_verisi,il_ismi,baraj_ustu_partiler=c("ak_parti","chp","mhp","hdp")){
+
+il_oy_oran<-
+secim_verisi %>%
+filter(grepl(il_ismi,il) & !(cevre_turu %in% c("Toplam"))) %>%
+select_("ilce","cevre","cevre_turu","gecerli_oy",.dots=baraj_ustu_partiler) %>%
+group_by(ilce,cevre,cevre_turu) %>%
+summarise_each(funs="sum") %>%
+mutate_each_(funs(round(./gecerli_oy,4)),baraj_ustu_partiler) %>%
+gather(key=parti,value=oy_orani,-ilce,-cevre,-cevre_turu)  %>%
+filter(parti != "gecerli_oy" & oy_orani > 0.05)
+
+the_plot<-
+ggplot(data=il_oy_oran) +
+geom_histogram(aes(x=oy_orani,fill=ordered(parti,levels=baraj_ustu_partiler)),color="white",size=0.1,binwidth=0.01) +
+# geom_density(aes(x=oy_orani,fill=parti),size=0.1,alpha=0.75,position="stack") +
+labs(x="Parti Oy Oranı (%5 ve altı gösterilmemektedir.)",y="Çevre (ör. Mahalle, Köy) Sayısı",
+    title=NULL) +
+scale_fill_manual(name="",labels=c("AK Parti","CHP","MHP","HDP"),values=c("#E4670C","#D6001C","#003f91","#7330b4")) +
+scale_x_continuous(labels = scales::percent,expand = c(0, 0),limits=c(0.05,1.05)) +
+# scale_y_continuous(expand = c(0, 0)) +
+theme_bw() +
+theme(legend.position="top",legend.key.size=unit(1,"char"),legend.margin=unit(0.05,"cm"),plot.title=element_text(hjust=0.5),plot.caption=element_text(hjust=0.5))
+
+bin_max<-max(ggplot_build(the_plot)$data[[1]][,"ymax"])
+
+the_plot +
+scale_y_continuous(expand=c(0,0),limits=c(0,ceiling(bin_max/5)*5))
 
 }
