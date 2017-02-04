@@ -111,7 +111,7 @@ il_bazi_giris<-function(secim_data,il_ismi,bolge_text=0){
            "ve toplamda ",format(il_istatistikleri$sandik,big.mark=".",decimal.mark=",")," seçim sandığı bulunmaktadır. ",
            ifelse(bolge_text > 0, "Seçim bölgesi","İl")," içerisinde toplam ", format(il_istatistikleri$kayitli_secmen,big.mark=".",decimal.mark=",")," kayıtlı seçmen bulunmaktadır. ",
            format(il_istatistikleri$oy_kullanan,big.mark=".",decimal.mark=",")," seçmen oy kullanmış, geçerli oy sayısı ise ",format(il_istatistikleri$gecerli_oy,big.mark=".",decimal.mark=",")," olmuştur. ",
-           "Seçime katılım oranı %",format(round(il_istatistikleri$oy_kullanan/il_istatistikleri$kayitli_secmen,4)*100,big.mark=".",decimal.mark=",")," olarak gerçekleşmiştir."
+           "Seçime katılım oranı %",format(round(il_istatistikleri$oy_kullanan/il_istatistikleri$kayitli_secmen,4)*100,big.mark=".",decimal.mark=",")," olarak gerçekleşmiştir.<p />"
 
     )
 
@@ -140,10 +140,33 @@ il_bazi_giris<-function(secim_data,il_ismi,bolge_text=0){
     "CHP %",format(oy_oranlari$chp,big.mark=".",decimal.mark=","),", ",
     "MHP %",format(oy_oranlari$mhp,big.mark=".",decimal.mark=","),", ",
     "HDP %",format(oy_oranlari$hdp,big.mark=".",decimal.mark=","),", ",
-    "ve diğer partiler ile bağımsızlar %",format(oy_oranlari$diger,big.mark=".",decimal.mark=",")," oy oranına sahip olmuşlardır."
+    "ve diğer partiler ile bağımsızlar %",format(oy_oranlari$diger,big.mark=".",decimal.mark=",")," oy oranına sahip olmuşlardır. "
     )
 
     output_text <- gsub(", ve"," ve",output_text)
+
+    oy_siralama <-
+    secim_data %>%
+    filter(ilce == "İli" & cevre == "Genel" & cevre_turu == "Toplam") %>%
+    group_by(il) %>%
+    summarise_each(funs(sum),kayitli_secmen:bagimsiz) %>%
+    ungroup() %>%
+    group_by(il) %>%
+    summarise_each(funs(./gecerli_oy),ak_parti:hdp) %>%
+    ungroup() %>%
+    mutate_each(funs(rank(-.)),-il) %>%
+    filter(il==il_ismi)
+
+    if(bolge_text==0){
+        output_text <-
+        paste0(output_text," ",il_ismi,", 81 il arasından, partilerin kendi içindeki oy oranları sıralamalarına göre ",
+        "AK Parti'nin ",oy_siralama$ak_parti,", ",
+        "CHP'nin ",oy_siralama$chp,", ",
+        "MHP'nin ",oy_siralama$mhp," ",
+        "ve HDP'nin ",oy_siralama$hdp,". sıradaki ili olmuştur.",
+        "^[Örneğin, AK Parti ",oy_siralama$ak_parti-1," ilde daha yüksek, ",81-oy_siralama$ak_parti," ilde ise daha düşük oy oranı görmüştür.] ")
+
+    }
 
     return(output_text)
 }
@@ -270,21 +293,45 @@ il_bazi_ilce_katilim_oranlari<-function(secim_list=list(`20150607`=secim150607g,
             mutate(secim=ordered(secim,levels=names(secim_list))) %>%
             tbl_df()
 
-    # ggplot(data=il_ilceler_verisi, aes(x=ilce)) +
-    # geom_bar(aes(y=deger,fill=deger_adi),stat="identity",position="identity") +
-    # # geom_bar(aes(y=kayitli_secmen),stat="identity",position="stack",fill="#77dd77",data="Kayıtlı Seçmen") +
-    # # geom_bar(aes(y=oy_kullanan),stat="identity",position="stack",fill="red",data="Oy Kullanan") +
-    # # geom_bar(aes(y=gecerli_oy),stat="identity",position="stack",fill="blue",data="Geçerli Oy") +
-    # labs(x="",y="",
-    #     title=paste0(il_ismi," Çevresi İlçelerin Seçime Katılım Oranları"),caption="") +
-    # scale_x_discrete(expand = c(0, 0)) +
-    # scale_y_continuous(labels = scales::percent,expand=c(0,0),limits=c(0,1)) +
-    # theme_bw() +
-    # theme(legend.position="top",legend.key.size=unit(1,"char"),legend.margin=unit(0.05,"cm"),
-    #         plot.title=element_text(hjust=0.5),plot.caption=element_text(hjust=0.5),
-    #         axis.text.x=element_text(angle=45,vjust=1,hjust=1))
+    il_ilceler_degisim <-
+    il_ilceler_verisi %>%
+    mutate(katilim_orani = oy_kullanan / kayitli_secmen) %>%
+    select(secim:kayitli_secmen,katilim_orani) %>%
+    gather(sayi,deger,-(secim:ilce)) %>%
+    arrange(ilce,sayi,secim) %>%
+    group_by(ilce,sayi) %>%
+    mutate(degisim_oransal=(lead(deger,1)/deger - 1)*100,
+            degisim_dogrusal= 100*(lead(deger,1) - deger)) %>%
+    filter(!is.na(degisim_oransal)) %>%
+    mutate(degisim=ifelse(sayi=="katilim_orani",degisim_dogrusal,degisim_oransal)) %>%
+    select(ilce,sayi,degisim) %>%
+    ungroup() %>%
+    spread(sayi,degisim)
 
-# fill="#77dd77"
+    kayitli_secmen_sira <-
+    il_ilceler_degisim %>% arrange(desc(kayitli_secmen))
+
+    katilim_orani_sira <-
+    il_ilceler_degisim %>% arrange(desc(katilim_orani))
+
+
+    ilce_sayisi <- nrow(il_ilceler_degisim)
+
+    yorum_bilgisi<-
+    paste0("Kayıtlı seçmen sayısındaki değişim en yüksek oranda ",
+    kayitli_secmen_sira$ilce[1]," (",ifelse(kayitli_secmen_sira$kayitli_secmen[1]>=0,"+","-"),"%",abs(round(kayitli_secmen_sira$kayitli_secmen[1],2)),")",
+    " ilçesinde ve en düşük oranda ",
+    kayitli_secmen_sira$ilce[ilce_sayisi]," (",ifelse(kayitli_secmen_sira$kayitli_secmen[ilce_sayisi]>=0,"+","-"),"%",abs(round(kayitli_secmen_sira$kayitli_secmen[ilce_sayisi],2)),")",
+    " ilçesinde görülmektedir. ",
+    "Seçime katılım oranında değişim ise en yüksek oranda ",
+    katilim_orani_sira$ilce[1]," (",ifelse(katilim_orani_sira$katilim_orani[1]>=0,"+","-"),"%",abs(round(katilim_orani_sira$katilim_orani[1],2)),")",
+    " ilçesinde ve en düşük oranda ",
+    katilim_orani_sira$ilce[ilce_sayisi]," (",ifelse(katilim_orani_sira$katilim_orani[ilce_sayisi]>=0,"+","-"),"%",abs(round(katilim_orani_sira$katilim_orani[ilce_sayisi],2)),")",
+    " ilçesinde görülmektedir."
+    )
+
+
+
     grafik_bilgisi<-
     ggplot(data=il_ilceler_verisi, aes(x=ilce)) +
     # geom_bar(aes(y=deger,fill=deger_adi),stat="identity",position="identity") +
@@ -305,7 +352,7 @@ il_bazi_ilce_katilim_oranlari<-function(secim_list=list(`20150607`=secim150607g,
             plot.title=element_text(hjust=0.5),plot.caption=element_text(hjust=0.5),
             axis.text.x=element_text(angle=45,vjust=1,hjust=1))
 
-    return(grafik_bilgisi)
+    return(list(grafik=grafik_bilgisi,yorum=yorum_bilgisi))
 }
 
 #' @export
@@ -329,21 +376,48 @@ il_bazi_ilce_parti_oy_oranlari<-function(secim_list=list(`20150607`=secim150607g
     arrange(ilce) %>%
     tbl_df()
 
-    # ggplot(data=il_ilceler_verisi, aes(x=ilce)) +
-    # geom_bar(aes(y=deger,fill=deger_adi),stat="identity",position="identity") +
-    # # geom_bar(aes(y=kayitli_secmen),stat="identity",position="stack",fill="#77dd77",data="Kayıtlı Seçmen") +
-    # # geom_bar(aes(y=oy_kullanan),stat="identity",position="stack",fill="red",data="Oy Kullanan") +
-    # # geom_bar(aes(y=gecerli_oy),stat="identity",position="stack",fill="blue",data="Geçerli Oy") +
-    # labs(x="",y="",
-    #     title=paste0(il_ismi," Çevresi İlçelerin Seçime Katılım Oranları"),caption="") +
-    # scale_x_discrete(expand = c(0, 0)) +
-    # scale_y_continuous(labels = scales::percent,expand=c(0,0),limits=c(0,1)) +
-    # theme_bw() +
-    # theme(legend.position="top",legend.key.size=unit(1,"char"),legend.margin=unit(0.05,"cm"),
-    #         plot.title=element_text(hjust=0.5),plot.caption=element_text(hjust=0.5),
-    #         axis.text.x=element_text(angle=45,vjust=1,hjust=1))
+    ilk_secim_oran <-
+    grafik_verisi %>%
+    filter(secim==names(secim_list)[1]) %>%
+    arrange(desc(oy_orani)) %>%
+    mutate(oy_orani=round(100*oy_orani,2)) %>%
+    slice(c(1,nrow(.)))
 
-# fill="#77dd77"
+    ikinci_secim_oran <-
+    grafik_verisi %>%
+    filter(secim==names(secim_list)[2]) %>%
+    arrange(desc(oy_orani)) %>%
+    mutate(oy_orani=round(100*oy_orani,2)) %>%
+    slice(c(1,nrow(.)))
+
+    degisim_verisi<-
+    grafik_verisi %>%
+    group_by(ilce) %>%
+    mutate(degisim= 100*(lead(oy_orani,1) - oy_orani)) %>%
+    filter(!is.na(degisim)) %>%
+    select(ilce,degisim) %>%
+    ungroup() %>%
+    arrange(desc(degisim)) %>%
+    slice(c(1,nrow(.)))
+
+    yorum_bilgisi <-
+    paste0(parti_etiketi,", 7 Haziran seçimlerinde ",il_ismi," ilçeleri arasında en yüksek oy oranını ",
+        ilk_secim_oran$ilce[1]," (%",ilk_secim_oran$oy_orani[1],"),",
+        " en düşük oy oranını ",
+        ilk_secim_oran$ilce[2]," (%",ilk_secim_oran$oy_orani[2],")",
+        " ilçelerinde görmüştür. ",
+        "1 Kasım seçimlerinde ise en yüksek oy oranını ",
+            ikinci_secim_oran$ilce[1]," (%",ikinci_secim_oran$oy_orani[1],"),",
+            " en düşük oy oranını ",
+            ikinci_secim_oran$ilce[2]," (%",ikinci_secim_oran$oy_orani[2],")",
+            " ilçelerinde görmüştür. ",
+        "İki seçim arasında oy oranlarındaki değişimi sıralayacak olursak; en yüksek oranda değişim ",
+        degisim_verisi$ilce[1]," (",ifelse(degisim_verisi$degisim[1]>=0,"+","-"),"%",abs(round(degisim_verisi$degisim[1],2)),")",
+        " ilçesinde ve en düşük oranda ",
+        degisim_verisi$ilce[2]," (",ifelse(degisim_verisi$degisim[2]>=0,"+","-"),"%",abs(round(degisim_verisi$degisim[2],2)),")",
+        " ilçesinde görülmektedir."
+        )
+
     grafik_bilgisi<-
     ggplot(data=grafik_verisi, aes(x=ilce)) +
     # geom_bar(aes(y=deger,fill=deger_adi),stat="identity",position="identity") +
@@ -362,7 +436,7 @@ il_bazi_ilce_parti_oy_oranlari<-function(secim_list=list(`20150607`=secim150607g
             plot.title=element_text(hjust=0.5),plot.caption=element_text(hjust=0.5),
             axis.text.x=element_text(angle=45,vjust=1,hjust=1))
 
-    return(grafik_bilgisi)
+    return(list(grafik=grafik_bilgisi,yorum=yorum_bilgisi))
 }
 
 
