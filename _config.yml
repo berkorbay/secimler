@@ -1,7 +1,12 @@
 theme: jekyll-theme-cayman
 title: Genel Seçimler için R Paketi
+description: secimler R paketi. Sandık bazında genel seçim verisi, veri analizi ve otomatik raporlama eğitimi için kullanılabilir.
+show_downloads: "false"
 social:
   name: Berk Orbay
   links:
     - https://twitter.com/berkorbay
     - https://www.linkedin.com/in/berkorbay
+image:
+  twitter: /img/twitter.png
+  facebook: /img/facebook.png
