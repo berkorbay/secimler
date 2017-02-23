@@ -1,6 +1,6 @@
 ##
 #' @export
-rapor_getir<-function(il_adi,ilce_adi="il",rapor_turu=c("html_document","pdf_document"),cikti_klasoru=""){
+rapor_getir<-function(il_adi,ilce_adi="il",rapor_turu=c("html_document","pdf_document","word_document"),cikti_klasoru=""){
 
     if(cikti_klasoru==""){
         cikti_klasoru <- getwd()
@@ -11,7 +11,7 @@ rapor_getir<-function(il_adi,ilce_adi="il",rapor_turu=c("html_document","pdf_doc
         stop("Böyle bir klasör bulunmuyor. Lütfen geçerli bir klasör girin.")
     }
 
-    extension_name <- switch(rapor_turu[1],html_document="html",pdf_document="pdf")
+    extension_name <- switch(rapor_turu[1],html_document="html",pdf_document="pdf",word_document="docx")
 
     il_listesi <- secim151101g %>% filter(cevre_turu != "Toplam") %>% distinct(il)
 
