@@ -1,1 +1,4 @@
 theme: jekyll-theme-cayman
+gems:
+  - jekyll-seo-tag
+title: Genel Seçimler için R Paketi
