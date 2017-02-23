@@ -411,12 +411,20 @@ il_bazi_ilce_parti_oy_oranlari<-function(secim_list=list(`20150607`=secim150607g
             " en düşük oy oranını ",
             ikinci_secim_oran$ilce[2]," (%",ikinci_secim_oran$oy_orani[2],")",
             " ilçelerinde görmüştür. ",
-        "İki seçim arasında oy oranlarındaki değişimi sıralayacak olursak; en yüksek oranda değişim ",
-        degisim_verisi$ilce[1]," (",ifelse(degisim_verisi$degisim[1]>=0,"+","-"),"%",abs(round(degisim_verisi$degisim[1],2)),")",
-        " ilçesinde ve en düşük oranda ",
-        degisim_verisi$ilce[2]," (",ifelse(degisim_verisi$degisim[2]>=0,"+","-"),"%",abs(round(degisim_verisi$degisim[2],2)),")",
-        " ilçesinde görülmektedir."
-        )
+
+
+        ifelse(degisim_verisi$degisim[1]<0,"Parti hiçbir ilçede oy oranını yükseltememiştir. ",""),
+        ifelse(degisim_verisi$degisim[2]>0,"Parti bütün ilçelerde oy oranlarını yükseltmiştir. ",""),
+        ifelse(degisim_verisi$degisim[1]>0,paste0("Puan bazında en büyük yükseliş ",degisim_verisi$ilce[1]," ilçesinde (+%",abs(round(degisim_verisi$degisim[1],2)),") görülmektedir. "),""),
+        ifelse(degisim_verisi$degisim[2]<0,paste0("Puan bazında en büyük düşüş ",ifelse(degisim_verisi$degisim[1]>0,"ise ",""),degisim_verisi$ilce[2]," ilçesinde (-%",abs(round(degisim_verisi$degisim[2],2)),") görülmektedir."),"")
+
+        #
+        # "İki seçim arasında oy oranlarındaki değişimi sıralayacak olursak; en yüksek oranda değişim ",
+        # degisim_verisi$ilce[1]," (",ifelse(degisim_verisi$degisim[1]>=0,"+","-"),"%",abs(round(degisim_verisi$degisim[1],2)),")",
+        # " ilçesinde ve en düşük oranda ",
+        # degisim_verisi$ilce[2]," (",ifelse(degisim_verisi$degisim[2]>=0,"+","-"),"%",abs(round(degisim_verisi$degisim[2],2)),")",
+        # " ilçesinde görülmektedir."
+    )
 
     grafik_bilgisi<-
     ggplot(data=grafik_verisi, aes(x=ilce)) +
@@ -471,4 +479,134 @@ bin_max<-max(ggplot_build(the_plot)$data[[1]][,"ymax"])
 the_plot +
 scale_y_continuous(expand=c(0,0),limits=c(0,ceiling(bin_max/5)*5))
 
+}
+
+
+#' @export
+oy_orani_boxplot_il<-function(secim_verisi,il_ismi,baraj_ustu_partiler=c("ak_parti","chp","mhp","hdp")){
+
+il_oy_oran<-
+secim_verisi %>%
+filter(grepl(il_ismi,il) & !(cevre_turu %in% c("Toplam"))) %>%
+select_("ilce","cevre","cevre_turu","gecerli_oy",.dots=baraj_ustu_partiler) %>%
+# group_by(ilce,cevre,cevre_turu) %>%
+# summarise_each(funs="sum") %>%
+mutate_each_(funs(round(./gecerli_oy,4)),baraj_ustu_partiler) %>%
+gather(key=parti,value=oy_orani,-ilce,-cevre,-cevre_turu)  %>%
+filter(parti != "gecerli_oy" & oy_orani > 0.05)
+
+the_plot<-
+ggplot(data=il_oy_oran) +
+geom_boxplot(aes(x=ordered(parti,levels=baraj_ustu_partiler),y=oy_orani,fill=ordered(parti,levels=baraj_ustu_partiler)),color="#333333") +
+# geom_density(aes(x=oy_orani,fill=parti),size=0.1,alpha=0.75,position="stack") +
+labs(x="Partiler",y="Parti Oy Oranları (%5 altı dahil edilmemiştir.)",
+    title=NULL) +
+scale_fill_manual(name="",labels=c("AK Parti","CHP","MHP","HDP"),values=c("#E4670C","#D6001C","#003f91","#7330b4")) +
+scale_x_discrete(labels=c("AK Parti","CHP","MHP","HDP")) +
+scale_y_continuous(labels = scales::percent,expand = c(0, 0),limits=c(0.05,1.05)) +
+# scale_y_continuous(expand = c(0, 0)) +
+theme_bw() +
+theme(legend.position="none",plot.title=element_text(hjust=0.5),plot.caption=element_text(hjust=0.5))
+
+return(the_plot)
+}
+
+
+#' @export
+kaymalari_hesapla<-function(degisimler,parti_grid){
+
+    degisimler <-
+    degisimler %>%
+    gather(key=parti,value=degisim,-(il:oy_agirlik),-toplam_degisim)
+
+    parti_grid %>% left_join(.,degisimler %>% select(oy_agirlik:degisim),by="parti") %>% left_join(.,degisimler %>% select(parti2=parti,degisim2=degisim),by="parti2") %>% filter(degisim < 0 & degisim2 > 0) %>% transmute(parti,parti2,oy_agirlik,kayma=abs(degisim)*degisim2/toplam_degisim)
+}
+
+
+#' @export
+oy_kaymalari<-function(il_ismi){
+
+    data_1 <-
+    secim150607g %>%
+    filter(il==il_ismi & cevre_turu != "Toplam") %>%
+    select(il,ilce,cevre,cevre_turu,gecerli_oy,ak_parti:hdp) %>%
+    mutate(diger=gecerli_oy - ak_parti - chp - mhp - hdp) %>%
+    group_by(il,ilce,cevre,cevre_turu) %>%
+    summarise_each(funs(sum))
+
+    colnames(data_1)[-(1:4)] <- paste0("haz_",colnames(data_1)[-(1:4)])
+
+    # %>% mutate_each(funs(./gecerli_oy),ak_parti:hdp) %>% mutate(diger=1-ak_parti-chp-mhp-hdp)
+
+    data_2 <- secim151101g %>%
+    filter(il==il_ismi & cevre_turu != "Toplam") %>%
+    select(il,ilce,cevre,cevre_turu,gecerli_oy,ak_parti:hdp) %>%
+    mutate(diger=gecerli_oy - ak_parti - chp - mhp - hdp) %>%
+    group_by(il,ilce,cevre,cevre_turu) %>%
+    summarise_each(funs(sum))
+
+    colnames(data_2)[-(1:4)] <- paste0("kas_",colnames(data_2)[-(1:4)])
+
+    # %>% mutate_each(funs(./gecerli_oy),ak_parti:hdp) %>% mutate(diger=1-ak_parti-chp-mhp-hdp)
+
+    butun_data <-
+    full_join(data_1,data_2,by=c("il","ilce","cevre","cevre_turu")) %>%
+    mutate_each(funs(ifelse(is.na(haz_gecerli_oy) | is.na(kas_gecerli_oy),"Diger",.)),il:cevre_turu) %>%
+    mutate_each(funs(ifelse(is.na(.),0,.))) %>%
+    mutate(id_num=ifelse(il!="Diger",row_number(),0)) %>%
+    select(il:cevre_turu,id_num,everything()) %>%
+    group_by(il,ilce,cevre,cevre_turu,id_num) %>%
+    summarise_each(funs(sum(.)),-(il:id_num))  %>%
+    ungroup() %>%
+    mutate_each(funs(./haz_gecerli_oy),haz_ak_parti:haz_diger) %>% mutate_each(funs(./kas_gecerli_oy),kas_ak_parti:kas_diger) %>%
+    transmute(il,ilce,cevre,cevre_turu,oy_agirlik=kas_gecerli_oy,
+    # transmute(il,ilce,cevre,cevre_turu,oy_agirlik=(haz_gecerli_oy+kas_gecerli_oy)/2,
+    ak_parti=kas_ak_parti - haz_ak_parti,
+    chp=kas_chp - haz_chp,
+    mhp=kas_mhp - haz_mhp,
+    hdp=kas_hdp - haz_hdp,
+    diger=kas_diger - haz_diger,
+    toplam_degisim=(abs(ak_parti)+abs(chp)+abs(mhp)+abs(hdp)+abs(diger))/2) %>%
+    tbl_df()
+
+    parti_ikili <- expand.grid(parti=c("ak_parti","chp","mhp","hdp","diger"),parti2=c("ak_parti","chp","mhp","hdp","diger"),stringsAsFactors=FALSE)
+
+
+
+    kayma_verisi<-
+    plyr::ddply(.data=butun_data %>% mutate(sandik=row_number()),.variables=c("sandik"),.fun=kaymalari_hesapla,parti_grid = parti_ikili %>% filter(parti != parti2)) %>% tbl_df()
+
+    # kayma_verisi %>% group_by(parti,parti2) %>% summarise(kayma=sum(kayma*oy_agirlik)) %>% ungroup() %>% mutate(kayma=round(kayma,4)*100) %>% spread(parti2,kayma,fill=0)
+
+    kayma_form <- kayma_verisi %>% mutate(kayma_oy=kayma*oy_agirlik,kayma_oy=kayma_oy/sum(butun_data$oy_agirlik)) %>% group_by(parti,parti2) %>%
+    # summarise(kayma=weighted.mean(kayma,oy_agirlik),oy_agirlik=sum(oy_agirlik)) %>% ungroup()
+    summarise(kayma=sum(kayma_oy)) %>% ungroup()
+
+    oy_kaymalari_tablo<-
+    kayma_form %>%
+    mutate(kayma=paste0("%",round(kayma,4)*100)) %>%
+    mutate_each(funs(ordered(.,levels=c("ak_parti","chp","mhp","hdp","diger"))),parti,parti2) %>%
+    mutate(parti=plyr::revalue(parti,c("ak_parti"="AK Parti","chp"="CHP","mhp"="MHP","hdp"="HDP","diger"="Diğer"))) %>%
+    mutate(parti2=plyr::revalue(parti2,c("ak_parti"="AK Parti","chp"="CHP","mhp"="MHP","hdp"="HDP","diger"="Diğer"))) %>%
+    spread(parti2,kayma,fill=0) %>% rename(` `=parti)
+
+    net_kayma_veri<-
+    left_join(kayma_form,kayma_form %>%
+        transmute(parti,parti2,kayma2=-kayma),by=c("parti"="parti2","parti2"="parti")) %>%
+        transmute(parti,parti2,net_kayma=100*round(kayma+kayma2,4)) %>%
+        filter(net_kayma > 0) %>%
+        # group_by(parti2) %>%
+        # summarise(sum(net_kayma)) %>%
+        tbl_df()
+
+    net_oy_kaymalari_tablo<-
+    parti_ikili %>%
+    left_join(.,net_kayma_veri,by=c("parti","parti2")) %>%
+    mutate(net_kayma=paste0("%",ifelse(is.na(net_kayma),0,net_kayma))) %>%
+    mutate_each(funs(ordered(.,levels=c("ak_parti","chp","mhp","hdp","diger"))),parti,parti2) %>%
+    mutate(parti=plyr::revalue(parti,c("ak_parti"="AK Parti","chp"="CHP","mhp"="MHP","hdp"="HDP","diger"="Diğer"))) %>%
+    mutate(parti2=plyr::revalue(parti2,c("ak_parti"="AK Parti","chp"="CHP","mhp"="MHP","hdp"="HDP","diger"="Diğer"))) %>%
+    spread(parti2,net_kayma) %>% rename(` `=parti)
+
+    return(list(oy_kaymalari_tablo,net_oy_kaymalari_tablo))
 }
