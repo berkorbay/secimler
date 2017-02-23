@@ -1,37 +1,48 @@
-## Welcome to GitHub Pages
+## Seçimler R paketi
 
-You can use the [editor on GitHub](https://github.com/berkorbay/secimler/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
+Bu paket ülkemizdeki 7 Haziran 2015 ve 1 Kasım 2015 tarihli genel seçimlerin sandık bazındaki verilerini ve bu verilerden yararlanarak oluşturlabilecek raporların altyapı fonksiyonlarını içermektedir. Eğitim amaçlı bir veri ve analiz paketidir.
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+## Paketi nasıl kullanacağım?
 
-### Markdown
+Paketi kullanmak son derece basit. 
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+1. İlk adımda bilgisayarınızda R 3.3.1 veya daha yüksek bir sürümünün olduğundan emin olun. R programını indirmek için [tıklayın](https://cloud.r-project.org/).
 
-```markdown
-Syntax highlighted code block
+2. R'ı çalıştırdıktan sonra aşağıdaki kodları kopyala yapıştır ile ekleyin.
 
-# Header 1
-## Header 2
-### Header 3
+  ```{r}
+  #Paketleri bu adresten yükle
+  options(repos="http://cran.rstudio.com/")
+  #devtools R'ın GitHub üzerinden paket yüklememize izin vermesini sağlayacak.
+  install.packages("devtools")
+  #Paketimizi indirelim.
+  devtools::install_github("berkorbay/secimler")
 
-- Bulleted
-- List
+  #Şimdi indirdiğimiz paketi yükleyelim
+  library(secimler)
+  ```
 
-1. Numbered
-2. List
+3. Paketi yükledikten sonra iki seçimin de sandık bazındaki verilerine `secim150607g` ve `secim151101g` yazarak ulaşabilirsiniz.
 
-**Bold** and _Italic_ and `Code` text
+Paket ve R üzerinde detaylı analizler yapmak istiyorsanız [buraya tıklayarak](https://r338.github.io/ab-2017/) ilgili eğitim dökümanlarına ulaşabilirsiniz. (Gün 2 secimler paketi ile işlemleri içeriyor).
 
-[Link](url) and ![Image](src)
-```
+## Raporları nasıl oluşturacağım?
+ 
+Rapor oluşturmak için ayrıca Pandoc denilen bir programı bilgisayarınıza indirip yüklemeniz gerekiyor. Yükleme talimatları için [tıklayın](http://pandoc.org/installing.html). Raporları üç çıktı formatında alabilirsiniz: HTML, PDF ve Word. PDF için ayrıca LaTeX yüklemeniz gerekiyor. Pandoc sayfasında ilgili talimatları bulacaksınız. Pandoc'u ve yükledikten sonra eğer üstteki kodları da çalıştırdıysanız R'a aşağıdaki komutları yazmanız yeterli.
 
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
+  ```{r}
+  #Eğer R'ı tekrar başlattıysanız paketi tekrar çağırmanız gerekiyor.
+  library(secimler)
+  #Örneğin Ankara'nın html formatında seçim raporunu istiyoruz.
+  rapor_getir(il_adi="Ankara",rapor_turu="html_document")
+  #Diyelim ki Ankara'nın Bala ilçesinin seçim raporunu word formatında istiyoruz 
+  rapor_getir(il_adi="Ankara",ilce_adi="Bala",rapor_turu="word_document") 
+  ```
 
-### Jekyll Themes
+## Sorular ve Sorunlar
 
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/berkorbay/secimler/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
+İlgili sorularınızı ve sorunlarınızı bana buradan Issues sekmesinden belirtebilir veya Linkedin üzerinden erişebilirsiniz ([tıklayın](https://www.linkedin.com/in/berkorbay)). 
 
-### Support or Contact
+## Teşekkürler
 
-Having trouble with Pages? Check out our [documentation](https://help.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
+Bu paketteki verilerin ham halleri TÜİK ve YSK tarafından sağlanmıştır. Ayrıca gerek paketin oluşmasında yardımcı olan, gerek test aşamasında destek olan ve yeri geldiğinde fikirleriyle gelişmesini sağlayan başta Osman Coşkunoğlu, Mustafa Baydoğan, Atilla Orbay, Yeşim Kamile Aktuğlu ve Nezih Bilgin olmak üzere herkese çok teşekkür ederim.
