@@ -2,6 +2,16 @@
 
 Bu paket ülkemizdeki 7 Haziran 2015 ve 1 Kasım 2015 tarihli genel seçimlerin sandık bazındaki verilerini ve bu verilerden yararlanarak oluşturlabilecek raporların altyapı fonksiyonlarını içermektedir. Eğitim amaçlı bir veri ve analiz paketidir.
 
+Kullanım adımlarını bu dökümanın aşağısında bulabilirsiniz.
+
+### Otomatik Raporlama Neden Önemli?
+
+Sürekli tekrarlanan ve kalıpları az çok belirli işler için (ör. piyasa raporları, hava durumu raporları, maç yorumları) daha az iş gücü ve zaman ayırmak mümkün.
+
+Bir kez iyi tasarlanmış bir rapor taslağı oluşturulduktan sonra her bir raporun oluşturulması, o raporun bir insan tarafından baştan yazılmasından çok daha kısa sürmekte ve çok daha tutarlı hale gelmektedir. Otomatik oluşturulmuş veri analiz raporları endüstrinin yeni standardı haline gelmektedir.
+
+Farklı örnekler için Automated Insights ve Narrative Science gibi şirketleri inceleyebilirsiniz.
+
 ### Örnek Raporlar
 
 Paket vasıtasıyla iller ve ilçeler için seçim sonuç ve karşılaştırma raporları çıkarabilirsiniz. Birkaç örnek görmek için aşağıdaki raporları inceleyebilirsiniz.
